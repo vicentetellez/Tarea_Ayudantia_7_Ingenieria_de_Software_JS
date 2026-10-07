@@ -65,6 +65,12 @@ export function TasksPage() {
     setTasks((prevTasks) => [newTask, ...prevTasks]);
   };
 
+  const handleTaskUpdated = (updatedTask) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+    );
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-white p-8">
       <div className="max-w-2xl mx-auto">
@@ -111,11 +117,10 @@ export function TasksPage() {
             {tasks.map((task) => (
               <TaskCard
                 key={task.id}
-                title={task.title}
-                description={task.description}
-                completed={task.completed}
+                task={task}
                 onToggle={() => handleToggle(task.id)}
                 onDelete={() => handleDelete(task.id)}
+                onTaskUpdated={handleTaskUpdated}
               />
             ))}
 
