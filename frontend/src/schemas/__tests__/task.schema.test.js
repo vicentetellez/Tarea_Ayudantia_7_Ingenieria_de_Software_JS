@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createTaskSchema } from '../task.schema';
+import { createTaskSchema, updateTaskSchema } from '../task.schema';
 
 // Pruebas unitarias para validar las reglas del esquema Zod de tareas
 describe('Pruebas unitarias: createTaskSchema (Zod)', () => {
@@ -121,4 +121,42 @@ describe('Pruebas unitarias: createTaskSchema (Zod)', () => {
   //   const result = createTaskSchema.safeParse(invalidData);
   //   expect(result.success).toBe(true);
   // });
+});
+
+describe('Pruebas unitarias: updateTaskSchema (Zod)', () => {
+  it('valida título, descripción y estado completado correctos', () => {
+    const result = updateTaskSchema.safeParse({
+      title: 'Preparar presentación',
+      description: 'Revisar el material',
+      completed: true,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('acepta omitir la descripción y el estado completado', () => {
+    const result = updateTaskSchema.safeParse({ title: 'Comprar cuaderno' });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rechaza títulos de menos de 3 caracteres con el mensaje esperado', () => {
+    const result = updateTaskSchema.safeParse({ title: 'AB' });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const titleError = result.error.issues.find((issue) => issue.path.includes('title'));
+      expect(titleError?.message).toBe('El título debe tener al menos 3 caracteres');
+    }
+  });
+
+  it('rechaza títulos de más de 150 caracteres con el mensaje esperado', () => {
+    const result = updateTaskSchema.safeParse({ title: 'A'.repeat(151) });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const titleError = result.error.issues.find((issue) => issue.path.includes('title'));
+      expect(titleError?.message).toBe('El título no puede superar los 150 caracteres');
+    }
+  });
 });
